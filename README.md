@@ -308,3 +308,9 @@ Quedaron **1,677** artistas de Grammys sin pareja en Spotify, por no estar allá
 - Se removio la categoria llamada **Various Artists** de ambas fuentes de datos, por que no representan a una persona o agrupación real, conservarla aumentaria de manera falsa el conteo de canciones y la cantidad de victorias.
 
 - El reporte se hizo con Python **notebooks/02_reporte.ipynb**
+
+**Fuentes**
+
+https://airflow.apache.org/docs/apache-airflow/stable/core-concepts/dags.html
+https://airflow.apache.org/docs/apache-airflow/stable/core-concepts/dags.html#declaring-a-dag
+https://airflow.apache.org/docs/apache-airflow/stable/core-concepts/dags.html#testing-a-dag
