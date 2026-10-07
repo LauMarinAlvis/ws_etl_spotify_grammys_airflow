@@ -1,0 +1,10 @@
+# Entorno local (VS Code, notebooks y scripts). Probado con Python 3.12.
+# Las librerías del contenedor de Airflow están en requirements.txt.
+pandas==2.3.3
+numpy==2.3.5
+pandera==0.34.1
+SQLAlchemy>=2.0,<2.1
+psycopg2-binary==2.9.13
+matplotlib==3.10.0
+ipykernel==7.4.0
+jupyter==1.1.1

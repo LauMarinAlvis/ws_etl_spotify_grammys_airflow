@@ -1,0 +1,19 @@
+# Entorno 
+.venv/
+.env
+
+# Airflow
+logs/*
+!logs/.gitkeep
+config/airflow.cfg
+
+# Python y Jupyter
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+
+# Datos: los CSV originales se descargan de Kaggle  y los intermedios se regeneran
+data/raw/*.csv
+data/processed/*
+!data/raw/.gitkeep
+!data/processed/.gitkeep

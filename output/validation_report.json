@@ -1,0 +1,41 @@
+{
+  "total_rows": 114000,
+  "valid_rows": 113392,
+  "invalid_rows": 608,
+  "invalid_pct": 0.533,
+  "threshold_pct": 5.0,
+  "structural_failure": false,
+  "passed": true,
+  "failed_rules": [
+    {
+      "rule": "track_genre:multiple_fields_uniqueness",
+      "rows": 450
+    },
+    {
+      "rule": "track_id:multiple_fields_uniqueness",
+      "rows": 450
+    },
+    {
+      "rule": "tempo:greater_than(0)",
+      "rows": 157
+    },
+    {
+      "rule": "duration_ms:greater_than(0)",
+      "rows": 1
+    },
+    {
+      "rule": "artists:not_nullable",
+      "rows": 1
+    },
+    {
+      "rule": "album_name:not_nullable",
+      "rows": 1
+    },
+    {
+      "rule": "track_name:not_nullable",
+      "rows": 1
+    }
+  ],
+  "run_id": "manual__2026-10-07T10:10:02.106885+00:00",
+  "simulate_bad_data": false
+}
