@@ -262,3 +262,49 @@ Lo que se encontró:
     ```powershell
     docker compose down
     ```
+## Transformaciones realizadas
+
+Cada fuente se transforma por separado antes de unirlas. En las dos, el resultado es una tabla con una fila por artista.
+
+**De Spotify:**
+
+- Se quitan las canciones repetidas. Una misma canción aparece una vez por cada genero al que pertenece, y contarla varias veces cambiaria los promedios.
+- Cuando una canción tiene varios artistas, vienen juntos separados por punto y coma. Se separan para que cada artista tenga su propia fila.
+- Los nombres se arreglan, todo en minuscula, sin tildes y sin espacios de mas. Así "Mel Tormé" y "Mel Torme" cuentan como el mismo artista.
+- Se agrupa por artista y se calcula cuántas canciones tiene y el promedio de popularidad, bailabilidad, energía y valence.
+
+**De Grammys:**
+
+- El nombre del artista se arregla igual que en Spotify para que hagan macht.
+- En casi el 38% de los premios la columna del artista viene vacia, pero el nombre aparece dentro de la columna **workers**, entre parentesis. Se saca de ahi para no perder esos premios.
+- Se cuenta cuantos premios tiene cada artista y en que año gano el primero y el ultimo.
+
+Se excluye **various artists**, porque no es un artista real sino una etiqueta que aparece en los datos de los dos lados.
+
+De las **113,392** canciones que pasaron la validacion salieron **29,422** artistas, y de los **4,810 premios salieron **2,298** artistas.
+
+### como funciona el merge- union
+
+Las dos tablas se unen por el nombre del artista que ya se ha arreglado. Se parte de la tabla de Spotify y a cada artista se le pega lo que tenga en la de Grammys. eligi que a partir de Spotify, porque decidi responder sobre como suenan los artistas de Spotify.
+
+El resultado es que quedan todos los artistas de Spotify. Los que ganaron algun premio llevan su total y el año del primero y del ultimo, y la columna **has_grammy** en verdadero. Los demás tienen cero premios y **has_grammy** en falso, asien total son 29,422 artistas y 621 tienen Grammy; cada fila guarda tambian el identificador de la ejecucion de Airflow y la hora para cuestiones de logs o segimientos y reportes y para saber de donde viene.
+
+Quedaron **1,677** artistas de Grammys sin pareja en Spotify, por no estar allá o por estar escritos distinto. No se usan, porque no se puede saber como suenan; antes de guardar, se comprueba que no haya nombres repetidos y que el número de filas sea el mismo despues de unir, si algo no cuadra, se detiene en vez de guardar datos mal unidos.
+
+### Decisiones de diseño
+
+- Las filas con problemas se apartan y no frenan todo. Un solo registro dañado no debería impedir que se guarde lo demas. Pero si más del 5% de las filas esta mal, o falta una columna entera, se para todo, porque eso ya indica un problema en el archivo, las reglas y el límite están en **validate/spotify_schema.py**
+
+- Se usa Airflow 3.3.2, que es la versión estable actual, cambia un poco la forma de escribir el DAG respecto a la versión 2, pero la idea es la misma:el DAG esta escrito en codigo Python en el archivo **dags/etl_spotify_grammys.py**, donde se definen las tareas y el orden en que se ejecutan.
+
+- Hay dos bases de datos separadas, una la usa Airflow para guardar su propio historial y la otra la llamada **warehouse**, guarda los datos del taller; entonces asi no se mezclan y se definen en **docker-compose.yaml**
+
+- El CSV final se guarda en la carpeta **output** del computador y no en Google Drive, uso esta manera local por que me evita manejar claves de acceso, el archivo que lo ejecuta es **load/csv_export.py**
+
+- La tabla final se reemplaza en cada ejecución, por que asi correr el pipeline varias veces deja siempre el mismo resultado y no duplica datos, la info esta en **load/postgres.py**
+
+- Las tareas se pasan los datos por archivos temporales en **data/processed**, porque son tablas grandes y no conviene pasarlas por los mensajes internos de Airflow, lo maneje en la siguiente ruta **dags/etl_spotify_grammys.py**
+
+- Se removio la categoria llamada **Various Artists** de ambas fuentes de datos, por que no representan a una persona o agrupación real, conservarla aumentaria de manera falsa el conteo de canciones y la cantidad de victorias.
+
+- El reporte se hizo con Python **notebooks/02_reporte.ipynb**
